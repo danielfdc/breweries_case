@@ -62,7 +62,7 @@ To be Archtecture:
 
 ```bash
 # 1. Clone o repositório
-git clone <repository-url>
+git clone https://github.com/danielfdc/breweries_case.git
 cd breweries_case
 
 # 2. Crie a estrutura de diretórios
