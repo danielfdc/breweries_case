@@ -1,0 +1,1 @@
+# TODO - Fechar guia detalhado do setup passo a passo

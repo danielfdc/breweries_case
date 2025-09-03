@@ -1,0 +1,39 @@
+[pytest]
+# Test discovery patterns
+python_files = test_*.py
+python_classes = Test*
+python_functions = test_*
+
+# Test directories
+testpaths = tests
+
+# Output options
+addopts = 
+    -v
+    --tb=short
+    --strict-markers
+    --disable-warnings
+    -p no:warnings
+    --cov=src
+    --cov-report=term-missing
+    --cov-report=html:htmlcov
+    --cov-fail-under=80
+
+# Markers for test categorization
+markers =
+    unit: Unit tests
+    integration: Integration tests  
+    performance: Performance tests
+    slow: Slow running tests
+
+# Logging
+log_cli = true
+log_cli_level = INFO
+log_cli_format = %(asctime)s [%(levelname)8s] %(message)s
+log_cli_date_format = %Y-%m-%d %H:%M:%S
+
+# Spark configurations for tests
+spark_options =
+    --conf spark.sql.shuffle.partitions=2
+    --conf spark.sql.adaptive.enabled=false
+    --conf spark.ui.enabled=false
