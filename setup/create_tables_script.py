@@ -23,6 +23,7 @@ def create_spark_session() -> SparkSession:
     """Create Spark session with Nessie/Iceberg configuration."""
     return SparkSession.builder \
         .appName("CreateBreweryTables") \
+        .config("spark.sql.extensions", "org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions") \
         .config("spark.sql.catalog.nessie", "org.apache.iceberg.spark.SparkCatalog") \
         .config("spark.sql.catalog.nessie.catalog-impl", "org.apache.iceberg.nessie.NessieCatalog") \
         .config("spark.sql.catalog.nessie.uri", "http://nessie:19120/api/v1") \
@@ -35,9 +36,9 @@ def create_spark_session() -> SparkSession:
         .getOrCreate()
 
 
-def create_namespace(spark: SparkSession, str: nm_namespace) -> None:
-    """Create breweries namespace if not exists."""
-    logger.info("Creating namespace nessie.breweries")
+def create_namespace(spark: SparkSession, nm_namespace: str) -> None:
+    """Create namespace if not exists."""
+    logger.info("Creating namespace nessie.<name> if not exists")
     spark.sql(f"CREATE NAMESPACE IF NOT EXISTS nessie.{nm_namespace};")
 
 """
