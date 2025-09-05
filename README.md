@@ -197,6 +197,7 @@ tests/
 
 ## Roadmap
 
+- Pipeline para expurgo de dados. (Rotina de Housekeeping)
 - Great Expectations para Data Quality
 - Observabilidade e métricas (Grafana)
 - Data Catalog (ex.: DataHub)
@@ -204,6 +205,7 @@ tests/
 - Evolução de schema e auditoria de alterações
 - Testes de performance/carga
 - Evolução da infraestrutura para um ambiente robusto de orquestração de containers (Kubernetes)
+- Integrar ferramenta de LLM Open Source Ollama para otimização do processo de extração de insights, possibilitando agregar mais valor em menos tempo, e empoderar usuários da solução com a possibilidade de exploração dos dados utilizando linguagem natural.
 
 ---
 

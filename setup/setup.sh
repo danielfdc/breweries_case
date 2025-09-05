@@ -12,7 +12,7 @@ cd ..
 echo "Building Docker images..."
 docker compose build
 
-RC=$0
+RC=$?
 
 if [ $RC -ne 0 ]; then
     echo "Error executing create_tables_script.py"
@@ -23,7 +23,7 @@ fi
 echo "Starting Docker containers..."
 docker compose up -d
 
-RC=$0
+RC=$?
 
 if [ $RC -ne 0 ]; then
     echo "Error executing create_tables_script.py"
@@ -37,7 +37,7 @@ cd ./setup
 echo "Executing setup script..."
 python3 ./create_tables_script.py
 
-RC=$0
+RC=$?
 
 if [ $RC -ne 0 ]; then
     echo "Error executing create_tables_script.py"
