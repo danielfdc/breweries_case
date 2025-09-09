@@ -2,76 +2,76 @@
 
 ![Beer Icon](./docs/imgs/beer.png)
 
-Solução de dados, robusta e escalável, seguindo a arquitetura medallion (Bronze–Silver–Gold) para processar dados da **Open Brewery DB**. O projeto utiliza componentes modernos de dados para orquestração, processamento distribuído, formato de tabela transacional e consulta interativa.
+Robust, scalable data solution following the **medallion architecture** (Bronze–Silver–Gold) to process **Open Brewery DB** data. The project leverages modern components for orchestration, distributed processing, transactional table format, and interactive querying.
 
-## Arquitetura
+## Architecture
 
-### Visão geral
-- **Data Fabric** sobre **Lakehouse**
-- Transações ACID em formatos de tabela
-- Escalabilidade e confiabilidade para lotes e consultas interativas
-- Virtualização/consulta unificada com Trino
-- Fonte única da verdade e camadas de dados padronizadas
+### Overview
+- **Data Fabric** on **Lakehouse**
+- ACID transactions in table formats
+- Scalability and reliability for batch and interactive queries
+- Virtualization / unified querying with Trino
+- Single source of truth and standardized data layers
 
 ## On Going:
-![Arquitetura Atual](./docs/imgs/current_arch.jpg)
+![Current Architecture](./docs/imgs/current_arch.jpg)
 
 ## To Be:
-![Arquitetura Alvo](./docs/imgs/to_be_arch.jpg)
+![Target Architecture](./docs/imgs/to_be_arch.jpg)
 
-### Componentes
-- **Airflow**: orquestração de workflows
-- **Spark**: processamento distribuído e execução de jobs
-- **Apache Iceberg**: formato de tabela para data lake (ACID)
-- **Nessie**: catálogo para versionamento de tabelas Iceberg
-- **MinIO**: armazenamento compatível com S3
-- **Trino**: engine SQL para exploração/BI
-- **PostgreSQL**: metastore do Airflow
+### Components
+- **Airflow**: workflow orchestration
+- **Spark**: distributed processing and job execution
+- **Apache Iceberg**: table format for the data lake (ACID)
+- **Nessie**: catalog for versioning Iceberg tables
+- **MinIO**: S3-compatible storage
+- **Trino**: SQL engine for exploration/BI
+- **PostgreSQL**: Airflow metastore
 
-### Camadas de dados
-- **Bronze**: ingestão bruta da API, mínima transformação
-- **Silver**: limpeza, padronização e validação
-- **Gold**: agregações analíticas e métricas de negócio
+### Data layers
+- **Bronze**: raw ingestion from the API, minimal transformation
+- **Silver**: cleaning, standardization, and validation
+- **Gold**: analytical aggregations and business metrics
 
 ---
 
-## Pré-requisitos
+## Prerequisites
 - Docker 20.10+
 - Docker Compose 2.0+
 - Git
-- Recomendado: 8 GB RAM, 4 vCPUs, 20 GB de espaço livre
+- Recommended: 8 GB RAM, 4 vCPUs, 20 GB free disk space
 
-> Em Linux/MacOS, garanta permissão de execução: `chmod +x setup.sh`.
+> On Linux/macOS, ensure execution permission: `chmod +x setup.sh`.
 
 ---
 
-## Início rápido
+## Quick start
 
 ```bash
-# 1) Clone o repositório
-git clone <URL-do-repositorio>
+# 1) Clone the repository
+git clone <repository-URL>
 cd breweries_case
 
-# 2) Execute o setup completo
+# 2) Run the full setup
 ./setup.sh
 ```
 
-O `setup.sh` realiza automaticamente:
-- build das imagens
-- subida dos containers
-- criação dos namespaces e tabelas Iceberg no catálogo Nessie
+`setup.sh` automatically:
+- builds the images
+- brings up the containers
+- creates Iceberg namespaces and tables in the Nessie catalog
 
-Após a execução, as interfaces ficam disponíveis em:
+After it finishes, the interfaces are available at:
 - Airflow UI: http://localhost:8080
 - Spark Master UI: http://localhost:8081
 - Spark History Server: http://localhost:18080
 - Trino Web UI: http://localhost:8082
-- MinIO Console: http://localhost:9001 (usuário: `admin`, senha: `admin123`)
+- MinIO Console: http://localhost:9001 (user: `admin`, password: `admin123`)
 - Nessie (API): http://localhost:19120
 
 ---
 
-## Estrutura do projeto
+## Project structure
 
 ```
 breweries_case/
@@ -87,7 +87,7 @@ breweries_case/
 │  └─ spark/
 │     └─ Dockerfile.spark
 ├─ dags/
-│  └─ ... (DAGs do Airflow)
+│  └─ ... (Airflow DAGs)
 ├─ src/
 │  ├─ config/
 │  ├─ processors/
@@ -101,88 +101,88 @@ breweries_case/
 ├─ scripts/
 │  └─ minio-init.sh
 └─ docs/
-   └─ imgs -> Icons usados no README.md
+   └─ imgs -> Icons used in this README
 ```
 
-> Volumes de dados, eventos e logs (por exemplo `events/`, `spark-logs/`, `data/`) são criados e montados via `docker-compose.yaml`.
+> Data, events, and log volumes (for example `events/`, `spark-logs/`, `data/`) are created and mounted via `docker-compose.yaml`.
 
 ---
 
-## Operação do pipeline
+## Pipeline operation
 
 ### Via Airflow
-1. Acesse **http://localhost:8080** (usuário: `admin`, senha: `admin`)
-2. Localize a DAG `breweries_data_pipeline`
-3. Ative a DAG e dispare uma execução manual (ou aguarde o agendamento)
+1. Open **http://localhost:8080** (user: `admin`, password: `admin`)
+2. Find the `breweries_data_pipeline` DAG
+3. Enable the DAG and trigger a manual run (or wait for the schedule)
 
-### Via Trino (consulta interativa)
-Exemplo usando o CLI dentro do container do Trino:
+### Via Trino (interactive querying)
+Example using the CLI inside the Trino container:
 
 ```bash
 docker exec -it trino trino --server http://localhost:8080 --catalog iceberg
 
--- Schemas (camadas)
+-- Schemas (layers)
 SHOW SCHEMAS LIKE '%_layer';
 
--- Tabelas por camada
+-- Tables by layer
 SHOW TABLES FROM iceberg.bronze_layer;
 SHOW TABLES FROM iceberg.silver_layer;
 SHOW TABLES FROM iceberg.gold_layer;
 
--- Amostras
+-- Samples
 SELECT * FROM iceberg.silver_layer.tbl_silver_brewery LIMIT 10;
 SELECT * FROM iceberg.gold_layer.tbl_gold_brewery_agg LIMIT 10;
 ```
 
-> Se preferir usar um cliente SQL externo, configure o endpoint `http://localhost:8082` com o catálogo `iceberg`.
+> If you prefer an external SQL client, configure the endpoint `http://localhost:8082` with the `iceberg` catalog.
 
 ---
 
 ## Troubleshooting
 
-1) **Containers não sobem**
+1) **Containers don’t start**
 ```bash
 docker compose down -v
 docker compose up -d
 ```
 
-2) **Permissões no Airflow (UID)**
+2) **Airflow (UID) permissions**
 ```bash
 echo "AIRFLOW_UID=$(id -u)" > .env
 docker compose down && docker compose up -d
 ```
 
-3) **Tabelas não encontradas**
-Reexecutar a criação após os serviços estarem de pé:
+3) **Tables not found**
+Re-run table creation after services are up:
 ```bash
 python3 ./create_tables_script.py
 ```
 
-### Logs e diagnóstico
+### Logs & diagnostics
 ```bash
 docker compose logs --tail=200
 
-# Serviços específicos
+# Specific services
 docker logs airflow-webserver   --tail=200
 docker logs airflow-scheduler   --tail=200
 docker logs spark-master        --tail=200
 docker logs spark-worker-1      --tail=200
 
-# Recursos
+# Resources
 docker stats
 ```
 
 ---
 
-## Desenvolvimento
+## Development
 
-- Estilo: PEP 8/257, type hints, tratamento de erros, logs
-- Airflow: tarefas idempotentes, parâmetros em variáveis/arquivos de configuração
-- PySpark: schemas explícitos, particionamento coerente, manuseio de datas
-- Testes: estrutura para unit/integration; fixtures para dados sintéticos
-- Qualidade: linters e pre-commit
+- Style: PEP 8/257, type hints, error handling, logging
+- Airflow: idempotent tasks, parameters in variables/config files
+- PySpark: explicit schemas, coherent partitioning, date handling
+- Tests: structure for unit/integration; fixtures for synthetic data
+- Quality: linters and pre-commit
 
-Exemplo de estrutura de testes:
+Example test structure:
 ```
 tests/
 ├─ unit/
@@ -197,19 +197,19 @@ tests/
 
 ## Roadmap
 
-- Pipeline para expurgo de dados. (Rotina de Housekeeping)
-- Great Expectations para Data Quality
-- Observabilidade e métricas (Grafana)
-- Data Catalog (ex.: DataHub)
-- CI/CD (GitHub Actions) com build/publish de imagens
-- Evolução de schema e auditoria de alterações
-- Testes de performance/carga
-- Evolução da infraestrutura para um ambiente robusto de orquestração de containers (Kubernetes)
-- Integrar ferramenta de LLM Open Source Ollama para otimização do processo de extração de insights, possibilitando agregar mais valor em menos tempo, e empoderar usuários da solução com a possibilidade de exploração dos dados utilizando linguagem natural.
+- Data purge pipeline (housekeeping routine)
+- Great Expectations for Data Quality
+- Observability and metrics (Grafana)
+- Data Catalog (e.g., DataHub)
+- CI/CD (GitHub Actions) with image build/publish
+- Schema evolution and change audit
+- Performance/load testing
+- Evolve infrastructure toward a robust container orchestration environment (Kubernetes)
+- Integrate the open-source LLM tool **Ollama** to optimize the insight-extraction process, adding more value in less time and enabling users to explore data using natural language.
 
 ---
 
-## Licença
+## License
 
 MIT License
 
@@ -232,4 +232,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
